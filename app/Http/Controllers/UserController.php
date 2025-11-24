@@ -8,12 +8,42 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
-
+use OpenApi\Annotations as OA;
 class UserController extends Controller
 {
-
     /**
-     * Registration and creation of a new user
+     * @OA\Post(
+     * path="/api/register",
+     * tags={"Użytkownik / Autoryzacja"},
+     * summary="Rejestracja i utworzenie nowego użytkownika",
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(
+     * @OA\Property(property="first_name", type="string", example="Jan"),
+     * @OA\Property(property="last_name", type="string", example="Kowalski"),
+     * @OA\Property(property="email", type="string", format="email", example="jan.kowalski@example.com"),
+     * @OA\Property(property="password", type="string", format="password", example="Haslo123!"),
+     * @OA\Property(property="confirm_password", type="string", format="password", example="Haslo123!"),
+     * @OA\Property(property="role", type="string", enum={"admin", "owner", "rentier"}, example="owner")
+     * )
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Użytkownik zarejestrowany pomyślnie",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Użytkownik zarejestrowany pomyślnie!"),
+     * @OA\Property(property="user", type="object")
+     * )
+     * ),
+     * @OA\Response(
+     * response=400,
+     * description="Nieprawidłowe dane rejestracji",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Nieprawidłowe dane rejestracji."),
+     * @OA\Property(property="error", type="object")
+     * )
+     * )
+     * )
      */
     public function register(Request $request){
         $validation = Validator::make($request->all(),[
@@ -64,8 +94,36 @@ class UserController extends Controller
             ], 500);
         }
     }
+
     /**
-     * Login user
+     * @OA\Post(
+     * path="/api/login",
+     * tags={"Użytkownik / Autoryzacja"},
+     * summary="Logowanie użytkownika",
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(
+     * @OA\Property(property="email", type="string", format="email", example="jan.kowalski@example.com"),
+     * @OA\Property(property="password", type="string", format="password", example="Haslo123!")
+     * )
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Logowanie powiodło się",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Logowanie powiodło się."),
+     * @OA\Property(property="token", type="string", example="1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Nieprawidłowe dane logowania",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Nieprawidłowe dane logowania."),
+     * @OA\Property(property="error", type="string", example="Wprowadzony email lub hasło jest niepoprawne.")
+     * )
+     * )
+     * )
      */
     public function login(Request $request){
         $validation = Validator::make($request->all(),[
@@ -103,8 +161,25 @@ class UserController extends Controller
             ], 500);
         }
     }
+
     /**
-     * Logout user
+     * @OA\Post(
+     * path="/api/logout",
+     * tags={"Użytkownik / Autoryzacja"},
+     * summary="Wylogowanie użytkownika (wymaga tokenu)",
+     * security={{"bearerAuth": {}}},
+     * @OA\Response(
+     * response=200,
+     * description="Wylogowano pomyślnie",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Wylogowano pomyślnie.")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Brak autoryzacji (nie podano tokenu)",
+     * )
+     * )
      */
     public function logout(Request $request){
         try {
@@ -118,8 +193,37 @@ class UserController extends Controller
             ], 500);
         }
     }
+
     /**
-     * Change user password
+     * @OA\Post(
+     * path="/api/change-password",
+     * tags={"Użytkownik / Autoryzacja"},
+     * summary="Zmiana hasła użytkownika (wymaga tokenu)",
+     * security={{"bearerAuth": {}}},
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(
+     * @OA\Property(property="current_password", type="string", format="password", example="StareHaslo123!"),
+     * @OA\Property(property="password", type="string", format="password", example="NoweHaslo456!"),
+     * @OA\Property(property="confirm_password", type="string", format="password", example="NoweHaslo456!")
+     * )
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Hasło zostało pomyślnie zaktualizowane",
+     * @OA\JsonContent(
+     * @OA\Property(property="message", type="string", example="Hasło zostało pomyślnie zaktualizowane!")
+     * )
+     * ),
+     * @OA\Response(
+     * response=400,
+     * description="Nieprawidłowe dane (walidacja)",
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Brak autoryzacji lub obecne hasło jest niepoprawne",
+     * )
+     * )
      */
     public function changePassword(Request $request){
         $validation = Validator::make($request->all(),[
