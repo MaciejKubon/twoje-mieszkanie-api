@@ -3,11 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @OA\Schema(
+ * schema="User",
+ * title="User",
+ * description="Model użytkownika",
+ * @OA\Property(property="id", type="integer", example=1),
+ * @OA\Property(property="name", type="string", example="Jan Kowalski"),
+ * @OA\Property(property="email", type="string", format="email", example="jan@example.com"),
+ * )
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -35,6 +46,8 @@ class User extends Authenticatable
         'active',
         'password',
         'remember_token',
+        'created_at',
+        'updated_at'
     ];
 
     /**
@@ -48,5 +61,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'from_user_id');
+    }
+    public function receivedMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'to_user_id');
     }
 }

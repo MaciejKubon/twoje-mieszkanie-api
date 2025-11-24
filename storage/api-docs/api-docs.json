@@ -6,6 +6,162 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/messages": {
+            "get": {
+                "tags": [
+                    "Wiadomości"
+                ],
+                "summary": "Pobiera listę unikalnych partnerów konwersacji (rozmówców) zalogowanego użytkownika.",
+                "operationId": "9d5effa2cb648df85be0ea9741ffb457",
+                "responses": {
+                    "200": {
+                        "description": "Zwraca listę partnerów konwersacji.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Błąd serwera."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/{partner}": {
+            "get": {
+                "tags": [
+                    "Wiadomości"
+                ],
+                "summary": "Pobiera historię wiadomości z konkretnym partnerem konwersacji.",
+                "operationId": "fbcaaaca8e91a558f5d2ab11ac7c29ef",
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "description": "ID partnera konwersacji (obiekt User).",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zwraca chronologiczną listę wiadomości.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Message"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Użytkownik (partner) nie znaleziony."
+                    },
+                    "500": {
+                        "description": "Błąd serwera."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/{receiver}": {
+            "post": {
+                "tags": [
+                    "Wiadomości"
+                ],
+                "summary": "Wysyła nową wiadomość do określonego odbiorcy.",
+                "operationId": "2d5ab6830dc3e332dbb975e9087e22cc",
+                "parameters": [
+                    {
+                        "name": "receiver",
+                        "in": "path",
+                        "description": "ID użytkownika, do którego wysyłana jest wiadomość.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "description": "Treść wiadomości (max 1000 znaków)",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Wiadomość została pomyślnie wysłana.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Wiadomość wysłana pomyślnie."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Błąd walidacji (np. brak pola 'message')."
+                    },
+                    "500": {
+                        "description": "Błąd serwera."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/register": {
             "post": {
                 "tags": [
@@ -274,6 +430,70 @@
         }
     },
     "components": {
+        "schemas": {
+            "Message": {
+                "title": "Message",
+                "description": "Model wiadomości",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "from_user_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "to_user_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "testowa wiadomość"
+                    },
+                    "sent_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-11-24 16:06:50"
+                    },
+                    "is_read": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-11-24 16:06:50"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-11-24 16:06:50"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "Model użytkownika",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Jan Kowalski"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "jan@example.com"
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
@@ -288,7 +508,11 @@
     "tags": [
         {
             "name": "Użytkownik / Autoryzacja",
-            "description": "Użytkownik / Autoryzacja"
+            "description": "Operacje związane z kontem użytkownika i logowaniem."
+        },
+        {
+            "name": "Wiadomości",
+            "description": "Operacje związane z wiadomościami i konwersacjami."
         }
     ]
 }
