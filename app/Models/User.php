@@ -8,16 +8,23 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use OpenApi\Attributes as OA;
 
+
+#[OA\Schema(
+    schema: 'User',
+    title: 'User',
+    description: 'Model użytkownika',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', format: 'int64', example: 1),
+        new OA\Property(property: 'name', type: 'string', example: 'Jan Kowalski'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'jan@example.com'),
+        new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+    ]
+)]
 /**
- * @OA\Schema(
- * schema="User",
- * title="User",
- * description="Model użytkownika",
- * @OA\Property(property="id", type="integer", example=1),
- * @OA\Property(property="name", type="string", example="Jan Kowalski"),
- * @OA\Property(property="email", type="string", format="email", example="jan@example.com"),
- * )
+ * @property string $role
+ * @property int $id
  */
 class User extends Authenticatable
 {
@@ -71,5 +78,9 @@ class User extends Authenticatable
     public function receivedMessages(): HasMany
     {
         return $this->hasMany(Message::class, 'to_user_id');
+    }
+    public function objectsOwner(): HasMany
+    {
+        return $this->hasMany(Objects::class, 'id_owner');
     }
 }
