@@ -4,22 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Schema(
- * schema="Message",
- * title="Message",
- * description="Model wiadomości",
- * @OA\Property(property="id", type="integer", example=1),
- * @OA\Property(property="from_user_id", type="integer", example=3),
- * @OA\Property(property="to_user_id", type="integer", example=2),
- * @OA\Property(property="message", type="string", example="testowa wiadomość"),
- * @OA\Property(property="sent_at", type="string", format="date-time", example="2025-11-24 16:06:50"),
- * @OA\Property(property="is_read", type="boolean", example=false),
- * @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-24 16:06:50"),
- * @OA\Property(property="updated_at", type="string", format="date-time", example="2025-11-24 16:06:50"),
- * )
- */
+#[OA\Schema(
+    schema: "Message",
+    title: "Message",
+    description: "Message model"
+)]
 class Message extends Model
 {
     protected $table = 'message';
@@ -35,6 +26,25 @@ class Message extends Model
         'created_at',
         'updated_at'
     ];
+
+
+    #[OA\Property(example: 1)]
+    public int $id;
+
+    #[OA\Property(property: "from_user_id", example: 3)]
+    public int $from_user_id;
+
+    #[OA\Property(property: "to_user_id", example: 2)]
+    public int $to_user_id;
+
+    #[OA\Property(example: "testowa wiadomość")]
+    public string $message;
+
+    #[OA\Property(property: "sent_at", format: "date-time", example: "2025-11-24 16:06:50")]
+    public string $sent_at;
+
+    #[OA\Property(property: "is_read", example: false)]
+    public bool $is_read;
 
     public function from_user(): BelongsTo
     {

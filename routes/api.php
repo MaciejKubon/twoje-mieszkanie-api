@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ObjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,3 +18,9 @@ Route::middleware('auth:sanctum')->post('/changePassword', [UserController::clas
 Route::middleware('auth:sanctum')->get('/messages',[MessageController::class,'index']);
 Route::middleware('auth:sanctum')->post('/messages/{receiver}',[MessageController::class,'store']);
 Route::middleware('auth:sanctum')->get('/messages/{partner}',[MessageController::class,'show']);
+
+Route::middleware('auth:sanctum')->get('/object',[ObjectController::class,'index']);
+Route::middleware('auth:sanctum')->get('/object/{objects}',[ObjectController::class,'show']);
+Route::middleware('auth:sanctum')->post('/object',[ObjectController::class,'store']);
+Route::middleware('auth:sanctum')->put('/object/{id}',[ObjectController::class,'update']);
+Route::middleware('auth:sanctum')->delete('/object/{objects}',[ObjectController::class,'destroy']);

@@ -149,10 +149,246 @@
                         }
                     },
                     "422": {
-                        "description": "Błąd walidacji (np. brak pola 'message')."
+                        "description": "Błąd walidacji (np. brak pola \"message\")."
                     },
                     "500": {
                         "description": "Błąd serwera."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/objects": {
+            "get": {
+                "tags": [
+                    "Obiekty"
+                ],
+                "summary": "Pobiera listę obiektów użytkownika",
+                "operationId": "ba20d88cf540054dc4f5fb1d805fa9c9",
+                "responses": {
+                    "200": {
+                        "description": "Zwraca listę obiektów",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "objects": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Objects"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Błąd serwera."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Obiekty"
+                ],
+                "summary": "Tworzy nowy obiekt",
+                "operationId": "d8e0a3cece83bec05348296ec777ea7e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type_of_building",
+                                    "country",
+                                    "voivodeship",
+                                    "city",
+                                    "zip_code",
+                                    "street",
+                                    "house_number"
+                                ],
+                                "properties": {
+                                    "type_of_building": {
+                                        "type": "string",
+                                        "enum": [
+                                            "house",
+                                            "apartment",
+                                            "room"
+                                        ]
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Polska"
+                                    },
+                                    "voivodeship": {
+                                        "type": "string",
+                                        "example": "Mazowieckie"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Warszawa"
+                                    },
+                                    "zip_code": {
+                                        "type": "string",
+                                        "example": "00-001"
+                                    },
+                                    "street": {
+                                        "type": "string",
+                                        "example": "Wiejska"
+                                    },
+                                    "house_number": {
+                                        "type": "string",
+                                        "example": "10"
+                                    },
+                                    "apartment_number": {
+                                        "type": "string",
+                                        "example": "5",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Obiekt został dodany"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/objects/{id}": {
+            "get": {
+                "tags": [
+                    "Obiekty"
+                ],
+                "summary": "Wyświetla szczegóły konkretnego obiektu",
+                "operationId": "8df8847939b0656f997f966747759bc4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Szczegóły obiektu"
+                    },
+                    "404": {
+                        "description": "Obiekt nie został znaleziony"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Obiekty"
+                ],
+                "summary": "Aktualizuje istniejący obiekt",
+                "operationId": "e0ba2519853daa4cd976a5b74b89caf3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "type_of_building": {
+                                        "type": "string",
+                                        "enum": [
+                                            "house",
+                                            "apartment",
+                                            "room"
+                                        ]
+                                    },
+                                    "country": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Obiekt został zaktualizowany"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Obiekty"
+                ],
+                "summary": "Usuwa obiekt",
+                "operationId": "048b3a4a891f020e1593da0551dcfefa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Obiekt został usunięty"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
                     }
                 },
                 "security": [
@@ -174,6 +410,14 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "password",
+                                    "confirm_password",
+                                    "role"
+                                ],
                                 "properties": {
                                     "first_name": {
                                         "type": "string",
@@ -225,7 +469,7 @@
                                             "example": "Użytkownik zarejestrowany pomyślnie!"
                                         },
                                         "user": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/User"
                                         }
                                     },
                                     "type": "object"
@@ -267,6 +511,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -298,6 +546,9 @@
                                         "token": {
                                             "type": "string",
                                             "example": "1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
                                         }
                                     },
                                     "type": "object"
@@ -375,6 +626,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "current_password",
+                                    "password",
+                                    "confirm_password"
+                                ],
                                 "properties": {
                                     "current_password": {
                                         "type": "string",
@@ -416,9 +672,6 @@
                     },
                     "400": {
                         "description": "Nieprawidłowe dane (walidacja)"
-                    },
-                    "401": {
-                        "description": "Brak autoryzacji lub obecne hasło jest niepoprawne"
                     }
                 },
                 "security": [
@@ -433,7 +686,7 @@
         "schemas": {
             "Message": {
                 "title": "Message",
-                "description": "Model wiadomości",
+                "description": "Message model",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -459,16 +712,67 @@
                     "is_read": {
                         "type": "boolean",
                         "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "Objects": {
+                "title": "Obiekty",
+                "description": "Struktura danych obiektu nieruchomości",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id_owner": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "type_of_building": {
+                        "type": "string",
+                        "enum": [
+                            "house",
+                            "apartment",
+                            "room"
+                        ],
+                        "example": "apartment"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "Polska"
+                    },
+                    "voivodeship": {
+                        "type": "string",
+                        "example": "Mazowieckie"
+                    },
+                    "city": {
+                        "type": "string",
+                        "example": "Warszawa"
+                    },
+                    "zip_code": {
+                        "type": "string",
+                        "example": "00-001"
+                    },
+                    "street": {
+                        "type": "string",
+                        "example": "Wiejska"
+                    },
+                    "house_number": {
+                        "type": "string",
+                        "example": "10"
+                    },
+                    "apartment_number": {
+                        "type": "string",
+                        "example": "5",
+                        "nullable": true
                     },
                     "created_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-11-24 16:06:50"
+                        "format": "date-time"
                     },
                     "updated_at": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-11-24 16:06:50"
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -479,6 +783,7 @@
                 "properties": {
                     "id": {
                         "type": "integer",
+                        "format": "int64",
                         "example": 1
                     },
                     "name": {
@@ -489,6 +794,10 @@
                         "type": "string",
                         "format": "email",
                         "example": "jan@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -509,6 +818,10 @@
         {
             "name": "Użytkownik / Autoryzacja",
             "description": "Operacje związane z kontem użytkownika i logowaniem."
+        },
+        {
+            "name": "Obiekty",
+            "description": "Operacje związane z zarządzaniem nieruchomościami."
         },
         {
             "name": "Wiadomości",
