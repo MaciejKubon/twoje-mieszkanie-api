@@ -134,7 +134,7 @@ class ObjectController extends Controller
 
         }catch ( \Exception $e){
             return response()->json([
-                'message' => 'Nieprzewidzany',
+                'message' => 'Nieprzewidzany błąd',
                 'error' => $e->getMessage()
             ]);
         }
