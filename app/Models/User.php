@@ -83,4 +83,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Objects::class, 'id_owner');
     }
+    public function renter():HasMany
+    {
+        return $this->hasMany(RentAssigment::class, 'id_renter');
+    }
 }

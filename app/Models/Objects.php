@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OpenApi\Attributes as OA;
 
@@ -63,5 +64,9 @@ class Objects extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_owner');
+    }
+    public function rentAssignments():HasMany
+    {
+        return $this->hasMany(RentAssigment::class, 'id_object');
     }
 }
