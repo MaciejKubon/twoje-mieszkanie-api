@@ -1,59 +1,240 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Twoje Mieszkanie API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API do zarządzania nieruchomościami i najmem mieszkaniowym. Aplikacja umożliwia właścicielom zarządzanie obiektami, przypisywanie najemców, śledzenie płatności czynszu oraz komunikację między użytkownikami.
 
-## About Laravel
+## 🚀 Funkcjonalności
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Autentykacja użytkowników** - rejestracja, logowanie, wylogowanie, zmiana hasła
+- **Zarządzanie obiektami** - CRUD dla nieruchomości (domy, mieszkania, pokoje)
+- **Przypisania najmu** - zarządzanie umowami najmu między właścicielami a najemcami
+- **Zarządzanie czynszem** - tworzenie, akceptacja i potwierdzanie płatności czynszu
+- **System wiadomości** - komunikacja między użytkownikami
+- **Dokumentacja API** - automatyczna dokumentacja Swagger/OpenAPI
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Wymagania
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.2
+- Composer
+- Node.js >= 18.x i npm
+- SQLite (lub MySQL/PostgreSQL)
 
-## Learning Laravel
+## 🔧 Instalacja
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. **Sklonuj repozytorium**
+   ```bash
+   git clone <repository-url>
+   cd twoje-mieszkanie-api
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Zainstaluj zależności PHP**
+   ```bash
+   composer install
+   ```
 
-## Laravel Sponsors
+3. **Skonfiguruj środowisko**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. **Skonfiguruj bazę danych**
 
-### Premium Partners
+   Edytuj plik `.env` i ustaw konfigurację bazy danych:
+   ```env
+   DB_CONNECTION=sqlite
+   # lub dla MySQL/PostgreSQL:
+   # DB_CONNECTION=mysql
+   # DB_HOST=127.0.0.1
+   # DB_PORT=3306
+   # DB_DATABASE=twoje_mieszkanie
+   # DB_USERNAME=root
+   # DB_PASSWORD=
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+5. **Uruchom migracje**
+   ```bash
+   php artisan migrate
+   ```
 
-## Contributing
+6. **Zainstaluj zależności frontendowe**
+   ```bash
+   npm install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+7. **Zbuduj zasoby frontendowe** (opcjonalnie)
+   ```bash
+   npm run build
+   ```
 
-## Code of Conduct
+## 🚀 Uruchomienie
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Szybka instalacja (wszystkie kroki naraz)
+```bash
+composer run setup
+```
 
-## Security Vulnerabilities
+### Tryb deweloperski
+```bash
+composer run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To uruchomi jednocześnie:
+- Serwer Laravel (`php artisan serve`)
+- Kolejkę zadań (`php artisan queue:listen`)
+- Logi w czasie rzeczywistym (`php artisan pail`)
+- Serwer Vite (`npm run dev`)
 
-## License
+### Ręczne uruchomienie
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Serwer API:**
+```bash
+php artisan serve
+```
+
+API będzie dostępne pod adresem: `http://localhost:8000`
+
+**Serwer Vite (dla frontendu):**
+```bash
+npm run dev
+```
+
+## 📚 Dokumentacja API
+
+Po uruchomieniu aplikacji, dokumentacja Swagger jest dostępna pod adresem:
+
+```
+http://localhost:8000/api/documentation
+```
+
+Aby wygenerować dokumentację API:
+```bash
+php artisan l5-swagger:generate
+```
+
+## 🔐 Autentykacja
+
+API używa Laravel Sanctum do autentykacji. Większość endpointów wymaga tokenu autoryzacyjnego.
+
+### Rejestracja
+```http
+POST /api/register
+Content-Type: application/json
+
+{
+  "name": "Jan Kowalski",
+  "email": "jan@example.com",
+  "password": "haslo123",
+  "password_confirmation": "haslo123"
+}
+```
+
+### Logowanie
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "email": "jan@example.com",
+  "password": "haslo123"
+}
+```
+
+Odpowiedź zawiera token, który należy używać w nagłówku:
+```http
+Authorization: Bearer {token}
+```
+
+## 📡 Endpointy API
+
+### Autentykacja
+- `POST /api/register` - Rejestracja użytkownika
+- `POST /api/login` - Logowanie
+- `POST /api/logout` - Wylogowanie (wymaga autoryzacji)
+- `POST /api/changePassword` - Zmiana hasła (wymaga autoryzacji)
+- `GET /api/user` - Informacje o zalogowanym użytkowniku (wymaga autoryzacji)
+
+### Obiekty
+- `GET /api/object` - Lista obiektów użytkownika
+- `GET /api/object/{id}` - Szczegóły obiektu
+- `POST /api/object` - Utworzenie obiektu
+- `PUT /api/object/{id}` - Aktualizacja obiektu
+- `DELETE /api/object/{id}` - Usunięcie obiektu
+
+### Przypisania najmu
+- `GET /api/rentAssigment` - Lista przypisań najmu
+- `GET /api/rentAssigment/{id}` - Szczegóły przypisania
+- `POST /api/rentAssigment` - Utworzenie przypisania najmu
+- `DELETE /api/rentAssigment/{id}` - Usunięcie przypisania
+
+### Czynsz
+- `GET /api/fullRent/{id}` - Szczegóły czynszu
+- `POST /api/fullRent` - Utworzenie czynszu
+- `PUT /api/fullRent/{id}` - Aktualizacja czynszu
+- `PUT /api/fullRent/accept/{id}` - Akceptacja czynszu
+- `PUT /api/fullRent/confirmPaid/{id}` - Potwierdzenie płatności
+- `DELETE /api/fullRent/{id}` - Usunięcie czynszu
+
+### Wiadomości
+- `GET /api/messages` - Lista konwersacji
+- `GET /api/messages/{partner}` - Wiadomości z konkretnym użytkownikiem
+- `POST /api/messages/{receiver}` - Wysłanie wiadomości
+
+## 🧪 Testy
+
+Uruchom testy:
+```bash
+composer run test
+```
+
+lub bezpośrednio:
+```bash
+php artisan test
+```
+
+## 🛠️ Narzędzia deweloperskie
+
+### Formatowanie kodu
+```bash
+./vendor/bin/pint
+```
+
+### Tinker (interaktywna konsola Laravel)
+```bash
+php artisan tinker
+```
+
+## 📁 Struktura projektu
+
+```
+twoje-mieszkanie-api/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/     # Kontrolery API
+│   │   └── Requests/        # Form requesty
+│   ├── Models/              # Modele Eloquent
+│   ├── Rules/               # Własne reguły walidacji
+│   └── Services/            # Logika biznesowa
+├── database/
+│   ├── migrations/          # Migracje bazy danych
+│   └── seeders/            # Seedery
+├── routes/
+│   └── api.php              # Definicje tras API
+├── config/                  # Pliki konfiguracyjne
+└── storage/
+    └── api-docs/            # Wygenerowana dokumentacja Swagger
+```
+
+## 🔒 Bezpieczeństwo
+
+- Wszystkie hasła są hashowane przy użyciu bcrypt
+- API używa Laravel Sanctum do autoryzacji tokenowej
+- Wszystkie endpointy (oprócz rejestracji i logowania) wymagają autoryzacji
+- Walidacja danych wejściowych przez Form Requests
+
+## 📝 Licencja
+
+Projekt jest otwartym oprogramowaniem dostępnym na licencji [MIT](https://opensource.org/licenses/MIT).
+
+## 🤝 Wsparcie
+
+W przypadku pytań lub problemów, utwórz issue w repozytorium projektu.
