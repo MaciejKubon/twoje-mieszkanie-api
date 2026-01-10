@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FullRentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ObjectController;
 use App\Http\Controllers\RentAssigmentController;
@@ -30,3 +31,10 @@ Route::middleware('auth:sanctum')->post('/rentAssigment',[RentAssigmentControlle
 Route::middleware('auth:sanctum')->get('/rentAssigment',[RentAssigmentController::class,'index']);
 Route::middleware('auth:sanctum')->get('/rentAssigment/{rentAssigment}',[RentAssigmentController::class,'show']);
 Route::middleware('auth:sanctum')->delete('/rentAssigment/{rentAssigment}',[RentAssigmentController::class,'destroy']);
+
+Route::middleware('auth:sanctum')->get('/fullRent/{fullRent}',[FullRentController::class,'show']);
+Route::middleware('auth:sanctum')->post('/fullRent',[FullRentController::class,'store']);
+Route::middleware('auth:sanctum')->put('/fullRent/{fullRent}',[FullRentController::class,'update']);
+Route::middleware('auth:sanctum')->delete('/fullRent/{fullRent}',[FullRentController::class,'destroy']);
+Route::middleware('auth:sanctum')->put('/fullRent/accept/{fullRent}',[FullRentController::class,'accept']);
+Route::middleware('auth:sanctum')->put('fullRent/confirmPaid/{fullRent}',[FullRentController::class,'confirmPaid']);

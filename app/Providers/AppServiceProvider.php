@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\FullRent;
 use App\Models\Objects;
 use App\Models\RentAssigment;
 use App\Models\User;
@@ -53,6 +54,28 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('update-rentAssigment', function (User $user, RentAssigment $rentAssigment) {
             return ($user->role === "rentier" && $user->id == $rentAssigment->id_renter)
                 || ($user->role === "owner" && $user->id == $rentAssigment->objectInRentAssigment->id_owner);
+        });
+
+        //FullRent
+        Gate::define('show-all-fullRent', function (User $user, FullRent $fullRent) {
+            return $user->id === $fullRent->rent_assigment->objectInRentAssigment->id_owner
+                || $user->id == $fullRent->rent_assigment->id_renter;
+        });
+        Gate::define('show-fullRent', function (User $user) {
+           return true;
+        });
+        Gate::define('create-fullRent', function (User $user, int $id_rent) {
+            $rent_assigment = RentAssigment::find($id_rent);
+            if (!$rent_assigment) {
+                return false;
+            }
+            return $user->id === $rent_assigment->objectInRentAssigment?->id_owner;
+        });
+        Gate::define('update-fullRent', function (User $user, FullRent $fullRent) {
+            return $user->id === $fullRent->rent_assigment->objectInRentAssigment->id_owner;
+        });
+        Gate::define('delete-fullRent', function (User $user, FullRent $fullRent) {
+            return $user->id === $fullRent->rent_assigment->objectInRentAssigment->id_owner;
         });
     }
 }
