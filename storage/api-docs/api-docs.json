@@ -6,6 +6,246 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/full-rents": {
+            "post": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Tworzy nowy czynsz",
+                "operationId": "6f3cddb7d7c6438aca79c10575238ee8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FullRent"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Czynsz został utworzony"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/full-rents/{id}": {
+            "get": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Wyświetla szczegóły czynszu",
+                "operationId": "a0e32c257699dcae9a64e985e766109d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dane czynszu"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    },
+                    "404": {
+                        "description": "Nie znaleziono zasobu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Aktualizuje istniejący czynsz",
+                "operationId": "7dade10b047ff247faff705f19b52f9d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FullRent"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Czynsz zaktualizowany"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji lub czynsz jest już zaakceptowany"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Usuwa czynsz",
+                "operationId": "66f92566723c09530078f5f58c9d8eed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Czynsz usunięty"
+                    },
+                    "400": {
+                        "description": "Nie można usunąć zaakceptowanego czynszu"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/full-rents/{id}/accept": {
+            "patch": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Akceptuje czynsz",
+                "operationId": "9a0d20d71c2f2c6e97940187228b2dfd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "is_accepted": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Czynsz potwierdzony"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/full-rents/{id}/confirm-paid": {
+            "patch": {
+                "tags": [
+                    "Czynsz"
+                ],
+                "summary": "Potwierdza opłacenie czynszu",
+                "operationId": "c5546035c0744c838709298d8d175db5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "is_paid": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Płatność potwierdzona"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji lub brak wcześniejszej akceptacji"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/messages": {
             "get": {
                 "tags": [
@@ -684,6 +924,45 @@
     },
     "components": {
         "schemas": {
+            "FullRent": {
+                "description": "Model reprezentujący czynsz",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 1
+                    },
+                    "id_rent_assigment": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-10"
+                    },
+                    "is_accepted": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_paid": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "date_paid": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "Message": {
                 "title": "Message",
                 "description": "Message model",
@@ -826,6 +1105,10 @@
         {
             "name": "Wiadomości",
             "description": "Operacje związane z wiadomościami i konwersacjami."
+        },
+        {
+            "name": "Czynsz",
+            "description": "Czynsz"
         }
     ]
 }
