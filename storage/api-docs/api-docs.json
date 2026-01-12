@@ -638,6 +638,227 @@
                 ]
             }
         },
+        "/api/rent-assignments": {
+            "get": {
+                "tags": [
+                    "Najem"
+                ],
+                "summary": "Pobiera listę przypisanych najmów dla obiektów użytkownika",
+                "operationId": "87b5c509a5c33c7d557044c765d39c72",
+                "responses": {
+                    "200": {
+                        "description": "Lista najmów przypisanych do obiektów",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/RentAssigment"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Najem"
+                ],
+                "summary": "Tworzy nową umowę najmu (przypisanie)",
+                "operationId": "6efde37e0f94307424563f967b3db0b7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_object",
+                                    "start_date",
+                                    "end_date"
+                                ],
+                                "properties": {
+                                    "rent_email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "najemca@example.com",
+                                        "nullable": true
+                                    },
+                                    "id_object": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-31"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Wynajem został dodany"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/rent-assignments/{id}": {
+            "get": {
+                "tags": [
+                    "Najem"
+                ],
+                "summary": "Pobiera szczegóły konkretnego najmu",
+                "operationId": "6607b3f5d7cc03bca0debb66ef3f4b75",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Szczegóły najmu"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Najem"
+                ],
+                "summary": "Aktualizuje lub potwierdza najem",
+                "description": "Dla najemcy: pozwala potwierdzić najem (confirmed). Dla właściciela: edycja danych najmu.",
+                "operationId": "249105df32071cbe914a1a51a80c21bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "rent_email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "nullable": true
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "confirmed": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Najem zaktualizowany/potwierdzony"
+                    },
+                    "400": {
+                        "description": "Błąd walidacji lub próba edycji potwierdzonego najmu"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Najem"
+                ],
+                "summary": "Usuwa przypisanie najmu",
+                "operationId": "7a372f7a58bef6355b05f632ff7c2a30",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Wynajem usunięty"
+                    },
+                    "403": {
+                        "description": "Brak dostępu"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/register": {
             "post": {
                 "tags": [
@@ -1056,6 +1277,45 @@
                 },
                 "type": "object"
             },
+            "RentAssigment": {
+                "title": "RentAssigment Model",
+                "description": "Model reprezentujący przypisanie wynajmu do obiektu",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 1
+                    },
+                    "id_renter": {
+                        "description": "ID najemcy (użytkownika)",
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "id_object": {
+                        "description": "ID wynajmowanego obiektu",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "confirmed": {
+                        "description": "Czy umowa jest potwierdzona",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "start_date": {
+                        "description": "Data rozpoczęcia najmu",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-01"
+                    },
+                    "end_date": {
+                        "description": "Data zakończenia najmu",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-31"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User",
                 "description": "Model użytkownika",
@@ -1109,6 +1369,10 @@
         {
             "name": "Czynsz",
             "description": "Czynsz"
+        },
+        {
+            "name": "Najem",
+            "description": "Najem"
         }
     ]
 }

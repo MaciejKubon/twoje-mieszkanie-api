@@ -24,7 +24,7 @@ class RentAssigmentService
             ->with(['objectInRentAssigment.owner'])
             ->get();
     }
-    public function getDetailsForOwner(int $rentAssigmentId): \App\Models\RentAssigment
+    public function getDetailsForOwner(int $rentAssigmentId): RentAssigment
     {
         $rentAssigment = RentAssigment::findOrFail($rentAssigmentId);
         $rentAssigment->load(['objectInRentAssigment', 'renter']);
