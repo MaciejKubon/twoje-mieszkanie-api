@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Objects;
 use App\Models\RentAssigment;
-use App\Models\User;
 use App\Rules\ObjectInRentAssigment;
 use App\Services\RentAssigmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
+use OpenApi\Attributes as OA;
 
 class RentAssigmentController extends Controller
 {
@@ -18,10 +17,28 @@ class RentAssigmentController extends Controller
     public function __construct(RentAssigmentService $service) {
         $this->rentService = $service;
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+
+    #[OA\Get(
+        path: '/api/rent-assignments',
+        summary: 'Pobiera listę przypisanych najmów dla obiektów użytkownika',
+        security: [['bearerAuth' => []]],
+        tags: ['Najem'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Lista najmów przypisanych do obiektów',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/RentAssigment'))
+                    ]
+                )
+            ),
+            new OA\Response(response: 403, description: 'Brak dostępu')
+        ]
+    )]
+
+    public function index(): JsonResponse
     {
         if (Gate::denies('show-all-rentAssigment')) {
             abort(403, 'Brak dostępu. Nie jesteś właścicielem.');
@@ -34,16 +51,36 @@ class RentAssigmentController extends Controller
             ],200);
         }catch (\Exception $e){
             return response()->json([
-                'message' => 'Nieprzewidzany błąd',
+                'message' => 'Nieprzewidziany błąd',
                 'error' => $e->getMessage()
             ], 500);
         }
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    #[OA\Post(
+        path: '/api/rent-assignments',
+        summary: 'Tworzy nową umowę najmu (przypisanie)',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_object', 'start_date', 'end_date'],
+                properties: [
+                    new OA\Property(property: 'rent_email', type: 'string', format: 'email', example: 'najemca@example.com', nullable: true),
+                    new OA\Property(property: 'id_object', type: 'integer', example: 1),
+                    new OA\Property(property: 'start_date', type: 'string', format: 'date', example: '2024-01-01'),
+                    new OA\Property(property: 'end_date', type: 'string', format: 'date', example: '2024-12-31'),
+                ]
+            )
+        ),
+        tags: ['Najem'],
+        responses: [
+            new OA\Response(response: 200, description: 'Wynajem został dodany'),
+            new OA\Response(response: 400, description: 'Błąd walidacji'),
+            new OA\Response(response: 403, description: 'Brak dostępu')
+        ]
+    )]
     public function store(Request $request): JsonResponse
     {
         $validation = Validator::make($request->all(), [
@@ -53,10 +90,10 @@ class RentAssigmentController extends Controller
             'end_date' => 'required|date||after:start_date',
         ],[
             'rent_email.email' => 'Pole email jest niepoprawny.',
-            'id_object.required' => 'Pole objekt jest wymagane.',
+            'id_object.required' => 'Pole obiekt jest wymagane.',
             'start_date.date' => 'Pole data początku jest wymagane.',
             'end_date.date' => 'Pole data końca jest wymagane.',
-            'end_date.after' => 'Pole data końca jest wcześniesz bądź równa dacie początkowej'
+            'end_date.after' => 'Pole data końca jest wcześniesze bądź równa dacie początkowej'
         ]);
         if ($validation->fails()) {
             return response()->json([
@@ -86,16 +123,26 @@ class RentAssigmentController extends Controller
             ], 200);
         }catch ( \Exception $e){
             return response()->json([
-                'message' => 'Nieprzewidzany błąd',
+                'message' => 'Nieprzewidziany błąd',
                 'error' => $e->getMessage()
             ]);
         }
 
     }
 
-    /**
-     * Display the specified resource.
-     */
+    #[OA\Get(
+        path: '/api/rent-assignments/{id}',
+        summary: 'Pobiera szczegóły konkretnego najmu',
+        security: [['bearerAuth' => []]],
+        tags: ['Najem'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Szczegóły najmu'),
+            new OA\Response(response: 403, description: 'Brak dostępu')
+        ]
+    )]
     public function show(RentAssigment $rentAssigment): JsonResponse
     {
         if (Gate::denies('show-rentAssigment', $rentAssigment)) {
@@ -120,10 +167,32 @@ class RentAssigmentController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, RentAssigment $rentAssigment)
+    #[OA\Put(
+        path: '/api/rent-assignments/{id}',
+        description: 'Dla najemcy: pozwala potwierdzić najem (confirmed). Dla właściciela: edycja danych najmu.',
+        summary: 'Aktualizuje lub potwierdza najem',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'rent_email', type: 'string', format: 'email', nullable: true),
+                    new OA\Property(property: 'start_date', type: 'string', format: 'date'),
+                    new OA\Property(property: 'end_date', type: 'string', format: 'date'),
+                    new OA\Property(property: 'confirmed', type: 'boolean', example: true),
+                ]
+            )
+        ),
+        tags: ['Najem'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Najem zaktualizowany/potwierdzony'),
+            new OA\Response(response: 400, description: 'Błąd walidacji lub próba edycji potwierdzonego najmu'),
+            new OA\Response(response: 403, description: 'Brak dostępu')
+        ]
+    )]
+    public function update(Request $request, RentAssigment $rentAssigment): JsonResponse
     {
         if(Gate::denies('update-rentAssigment', $rentAssigment)) {
             abort(403, 'Brak dostępu do najmu');
@@ -152,7 +221,7 @@ class RentAssigmentController extends Controller
                     ],200);
                 }catch (\Exception $e){
                     return response()->json([
-                        'message' => 'Nieprzewidzany błąd',
+                        'message' => 'Nieprzewidziany błąd',
                         'error' => $e->getMessage()
                     ],500);
                 }
@@ -190,7 +259,7 @@ class RentAssigmentController extends Controller
                 ], 400);
             }
             if($rentAssigment->renter_id != null && $request->filled('confirmed')
-                && $request->confirmed == true){
+                && $request->confirmed){
                 return response()->json([
                     'message' => 'Przy przypisanym najemcy, potwierdzić najem może tylko najemca',
                 ], 400);
@@ -212,7 +281,7 @@ class RentAssigmentController extends Controller
                 ],200);
             }catch ( \Exception $e) {
                 return response()->json([
-                    'message' => 'Nieprzewidzany błąd',
+                    'message' => 'Nieprzewidziany błąd',
                     'error' => $e->getMessage()
                 ]);
             }
@@ -220,10 +289,20 @@ class RentAssigmentController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(RentAssigment $rentAssigment)
+    #[OA\Delete(
+        path: '/api/rent-assignments/{id}',
+        summary: 'Usuwa przypisanie najmu',
+        security: [['bearerAuth' => []]],
+        tags: ['Najem'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Wynajem usunięty'),
+            new OA\Response(response: 403, description: 'Brak dostępu')
+        ]
+    )]
+    public function destroy(RentAssigment $rentAssigment): JsonResponse
     {
         if (Gate::denies('delete-rentAssigment', $rentAssigment)) {
             abort(403, 'Brak dostępu. Nie jesteś właścicielem.');
@@ -235,7 +314,7 @@ class RentAssigmentController extends Controller
             ]);
         } catch ( \Exception $e){
             return response()->json([
-                'message' => 'Nieprzewidzany bład',
+                'message' => 'Nieprzewidziany błąd',
                 'error' => $e->getMessage()
             ]);
         }
