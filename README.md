@@ -1,7 +1,7 @@
 # Twoje Mieszkanie API
 
 API do zarządzania nieruchomościami i najmem mieszkaniowym. Aplikacja umożliwia właścicielom zarządzanie obiektami, przypisywanie najemców, śledzenie płatności czynszu oraz komunikację między użytkownikami.
-
+php artisane serve
 ## 🚀 Funkcjonalności
 
 - **Autentykacja użytkowników** - rejestracja, logowanie, wylogowanie, zmiana hasła

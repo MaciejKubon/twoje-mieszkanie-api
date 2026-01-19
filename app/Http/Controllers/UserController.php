@@ -67,7 +67,7 @@ class UserController extends Controller
             'email.unique'=> 'Email już istnieje',
             'first_name.required' => 'Pole imie jest wymagany.',
             'last_name.required' => 'Pole nazwisko jest wymagany.',
-            'password.rquired' => 'Pole hasło jest wymagany.',
+            'password.required' => 'Pole hasło jest wymagany.',
             'password.min' => 'Hasło musi mieć co najmniej :min znaków.',
             'password.letters' => 'Hasło musi zawierać przynajmniej jedną literę.',
             'password.mixed' => 'Hasło musi zawierać małe i duże litery.',
@@ -93,13 +93,13 @@ class UserController extends Controller
                 'password'=>Hash::make($request->password),
                 'role'=>$request->role
             ]);
-            return response()->json(['
-                message' => 'żytkownik zarejestrowany pomyślnie',
+            return response()->json([
+                'message' => 'Użytkownik zarejestrowany pomyślnie',
             ], 200);
         }
         catch (\Exception $e) {
             return response()->json(['
-                message' => 'Nieprzewidzany błąd',
+                message' => 'Nieprzewidziany błąd',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -143,6 +143,7 @@ class UserController extends Controller
     )]
     public function login(Request $request): JsonResponse
     {
+
         $validation = Validator::make($request->all(),[
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -159,6 +160,7 @@ class UserController extends Controller
             ], 400);
         }
         $credentials = $request->only('email', 'password');
+
         try{
             if(Auth::attempt($credentials)) {
                 $user = Auth::User();
