@@ -72,10 +72,13 @@ class AppServiceProvider extends ServiceProvider
             return $user->id === $rent_assigment->objectInRentAssigment?->id_owner;
         });
         Gate::define('update-fullRent', function (User $user, FullRent $fullRent) {
-            return $user->id === $fullRent->rent_assigment->objectInRentAssigment->id_owner;
+            return $user->id === $fullRent->rentAssignment->objectInRentAssigment->id_owner;
         });
         Gate::define('delete-fullRent', function (User $user, FullRent $fullRent) {
-            return $user->id === $fullRent->rent_assigment->objectInRentAssigment->id_owner;
+            return $user->id === $fullRent->rentAssignment->objectInRentAssigment->id_owner;
+        });
+        Gate::define('confirm-paid-fullRent', function (User $user, FullRent $fullRent) {
+            return $user->id === $fullRent->rentAssignment->id_renter;
         });
     }
 }

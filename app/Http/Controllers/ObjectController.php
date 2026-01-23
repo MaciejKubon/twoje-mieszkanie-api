@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Rules\PostalCode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
@@ -36,20 +35,30 @@ class ObjectController extends Controller
     #[OA\Response(response: 500, description: 'Błąd serwera.')]
     public function index(): JsonResponse
     {
-        try{
+        try {
             $user = auth()->user();
-            $objects = Objects::where('id_owner', $user->id)->get();
+            $objects = Objects::where('id_owner', $user->id)
+                ->get([
+                    'id',
+                    'name',
+                    'type_of_building',
+                    'country',
+                    'city',
+                    'street',
+                    'house_number',
+                    'apartment_number'
+                ]);
+
             return response()->json([
                 'objects' => $objects,
             ]);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Nieprzewidzany błąd',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
-
     #[OA\Post(
         path: '/api/objects',
         summary: 'Tworzy nowy obiekt',
@@ -83,6 +92,7 @@ class ObjectController extends Controller
         }
         try{
             $validation = Validator::make($request->all(), [
+                'name'             => 'required',
                 'type_of_building' => 'required|in:house,apartment,room',
                 'country'          => 'required|string|max:255',
                 'voivodeship'      => 'required|string|max:255',
@@ -93,6 +103,7 @@ class ObjectController extends Controller
                 'apartment_number' => 'nullable|string|max:5',
 
             ], [
+                'name.required' => 'Nazwa obiektu jest wymagana',
                 'type_of_building.required' => 'Typ budynku jest wymagany.',
                 'type_of_building.in'       => 'Typ budynku musi być jednym z: dom, mieszkanie lub pokój.',
                 'country.required' => 'Pole kraj jest wymagane.',
@@ -120,7 +131,7 @@ class ObjectController extends Controller
                 ], 400);
             }
             $data = $request->only([
-                'type_of_building', 'country', 'voivodeship', 'city', 'zip_code',
+                'name','type_of_building', 'country', 'voivodeship', 'city', 'zip_code',
                 'street', 'house_number', 'apartment_number'
             ]);
             $data['id_owner'] = $user->id;
@@ -196,6 +207,7 @@ class ObjectController extends Controller
         }
 
             $validation = Validator::make($request->all(), [
+                'name'             => 'sometimes',
                 'type_of_building' => 'sometimes|in:house,apartment,room',
                 'country'          => 'sometimes|string|max:255',
                 'voivodeship'      => 'sometimes|string|max:255',
@@ -206,6 +218,7 @@ class ObjectController extends Controller
                 'apartment_number' => 'sometimes|string|max:5',
 
             ], [
+                'name.sometimes'     => 'Pole nie jest wymagany.',
                 'type_of_building.required' => 'Typ budynku jest wymagany.',
                 'type_of_building.in'       => 'Typ budynku musi być jednym z: dom, mieszkanie lub pokój.',
                 'country.sometimes' => 'Pole kraj jest wymagane.',
@@ -223,12 +236,13 @@ class ObjectController extends Controller
                 'house_number.sometimes' => 'Pole numer domu jest wymagane.',
                 'house_number.string'   => 'Pole numer domu musi być tekstem.',
                 'house_number.max'      => 'Pole numer domu może mieć maksymalnie :max znaków.',
-                'apartment_number.string' => 'Pole numer mieszkania musi być tekstem.',
+                'apartment_number.sometimes'=> 'Pole numer domu jest wymagane.',
+
                 'apartment_number.max'    => 'Pole numer mieszkania może mieć maksymalnie :max znaków.',
             ]);
             if ($validation->fails()) {
                 return response()->json([
-                    'message' => 'Nie udało się utworzyć obiektu',
+                    'message' => 'Nie udało się edytować obiektu',
                     'error'  => $validation->errors(),
                 ], 400);
             }
@@ -276,4 +290,5 @@ class ObjectController extends Controller
             ], 500);
         }
     }
+    
 }

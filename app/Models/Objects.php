@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
     description: 'Struktura danych obiektu nieruchomości',
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 1),
+        new OA\Property(property: 'name', type: 'string', example: "ABC"),
         new OA\Property(property: 'id_owner', type: 'integer', example: 5),
         new OA\Property(property: 'type_of_building', type: 'string', enum: ['house', 'apartment', 'room'], example: 'apartment'),
         new OA\Property(property: 'country', type: 'string', example: 'Polska'),
@@ -40,6 +41,7 @@ class Objects extends Model
     protected $table = 'objects';
     protected $fillable = [
         'id',
+        'name',
         'id_owner',
         'type_of_building',
         'country',

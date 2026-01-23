@@ -127,7 +127,9 @@ class UserController extends Controller
             properties: [
                 new OA\Property(property: 'message', type: 'string', example: 'Logowanie powiodło się.'),
                 new OA\Property(property: 'token', type: 'string', example: '1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+                new OA\Property(property: 'role', type: 'string', example: 'owner'),
                 new OA\Property(property: 'user', ref: '#/components/schemas/User')
+
             ]
         )
     )]
@@ -167,7 +169,11 @@ class UserController extends Controller
                 $token = $user->createToken('authToken')->plainTextToken;
                 return response()->json([
                     'message' => 'Logowanie powiodło się',
-                    'token' => $token], 200);
+                    'token' => $token,
+                    'role'=> $user->role,
+                    'fiest_name'=> $user->first_name,
+                    'last_name'=> $user->last_name
+                ], 200);
             }
             return response()->json([
                 'message' => 'Nieprawidłowe dane logowania',

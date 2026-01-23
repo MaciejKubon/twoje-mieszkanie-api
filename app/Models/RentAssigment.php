@@ -54,4 +54,5 @@ class RentAssigment extends Model
         $object = $this->belongsTo(Objects::class, 'id_object', 'id');
         return $object;
     }
+
 }

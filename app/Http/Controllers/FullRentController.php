@@ -14,6 +14,77 @@ use OpenApi\Attributes as OA;
 
 class FullRentController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $user = auth()->user();
+            $userId = $user->id;
+            $perPage = $request->query('per_page', 5);
+            $sortBy  = $request->query('sort_by', 'date');
+            $order   = $request->query('order', 'desc');
+            $order   = strtolower($order) === 'asc' ? 'asc' : 'desc';
+            $dbFields = ['id', 'amount', 'date', 'is_paid', 'is_accepted'];
+            $safeSortBy = in_array($sortBy, $dbFields) ? $sortBy : 'date';
+
+            $query = FullRent::query();
+            if ($user->role == 'owner') {
+                $query->whereHas('rentAssignment.objectInRentAssigment', function ($q) use ($userId) {
+                    $q->where('id_owner', $userId);
+                })->with(['rentAssignment.objectInRentAssigment', 'rentAssignment.renter']);
+
+                $mapCallback = function ($rent) {
+                    $assignment = $rent->rentAssignment;
+                    $object = $assignment ? $assignment->objectInRentAssigment : null;
+                    $renter = $assignment ? $assignment->renter : null;
+                    return [
+                        'id'           => $rent->id,
+                        'amount'       => $rent->amount,
+                        'date'         => $rent->date,
+                        'is_paid'      => (bool)$rent->is_paid,
+                        'object_name'  => $object->name ?? 'Brak nazwy',
+                        'renter_email' => $renter->email ?? null,
+                        'renter_name'  => $renter ? ($renter->first_name . ' ' . $renter->last_name) : null,
+                        'is_accepted'  => $rent->is_accepted ?? null,
+                    ];
+                };
+
+            } else if ($user->role == 'rentier') {
+                $query->whereHas('rentAssignment.objectInRentAssigment', function ($q) use ($userId) {
+                    $q->where('id_renter', $userId);
+                })->with(['rentAssignment.objectInRentAssigment.owner']);
+
+                $mapCallback = function ($rent) {
+                    $assignment = $rent->rentAssignment;
+                    $object = $assignment ? $assignment->objectInRentAssigment : null;
+                    $owner = $object ? $object->owner : null;
+                    return [
+                        'id'               => $rent->id,
+                        'amount'           => $rent->amount,
+                        'date'             => $rent->date,
+                        'is_paid'          => (bool) $rent->is_paid,
+                        'object_name'      => $object->name ?? 'Brak nazwy',
+                        'owner_first_name' => $owner->first_name ?? null,
+                        'owner_last_name'  => $owner->last_name ?? null,
+                        'owner_email'      => $owner->email ?? null,
+                        'is_accepted'      => $rent->is_accepted ?? null,
+                    ];
+                };
+            } else {
+                return response()->json(['data' => [], 'message' => 'Brak uprawnień'], 403);
+            }
+            $paginatedRents = $query->orderBy($safeSortBy, $order)->paginate($perPage);
+            $transformedData = $paginatedRents->getCollection()->map($mapCallback);
+            $paginatedRents->setCollection($transformedData);
+
+            return response()->json($paginatedRents, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Nieprzewidziany błąd',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     #[OA\Post(
         path: '/api/full-rents',
         summary: 'Tworzy nowy czynsz',
@@ -82,13 +153,72 @@ class FullRentController extends Controller
     )]
     public function show(FullRent $fullRent): JsonResponse
     {
-        if(Gate::denies('show-fullRent', $fullRent)){
-            abort(403, 'Brak dostępu.');
+//        if(Gate::denies('show-fullRent', $fullRent)){
+//            abort(403, 'Brak dostępu.');
+//        }
+        $user = auth()->user();
+        $userId = $user->id;
+        if($user->role == 'owner'){
+            $fullRents = FullRent::query()
+                ->whereHas('rentAssignment.objectInRentAssigment', function ($query) use ($userId) {
+                    $query->where('id_owner', $userId);
+                })
+                ->with([
+                    'rentAssignment.objectInRentAssigment',
+                    'rentAssignment.renter'
+                ])
+                ->get();
+            $result = $fullRents->map(function ($rent) {
+                $assignment = $rent->rentAssignment;
+                $object = $assignment ? $assignment->objectInRentAssigment : null;
+                $renter = $assignment ? $assignment->renter : null;
+                return [
+                    'id'               => $rent->id,
+                    'amount'           => $rent->amount,
+                    'date'             => $rent->date,
+                    'is_paid'          => (bool) $rent->is_paid,
+                    'id_object'        => $object -> id,
+                    'object_name'      => $object->name ?? 'Brak nazwy',
+                    'renter_email' => $renter->email ?? null,
+                    'renter_name' => $renter ? ($renter->first_name . ' ' . $renter->last_name) : null,
+                    'is_accepted'      => $rent->is_accepted ?? null,
+                ];
+            });
+        }else if($user->role == 'rentier'){
+            $fullRents = FullRent::query()
+                ->whereHas('rentAssignment.objectInRentAssigment', function ($query) use ($userId) {
+                    $query->where('id_renter', $userId);
+                })
+                ->with([
+                    'rentAssignment.objectInRentAssigment',
+                    'rentAssignment.objectInRentAssigment.owner'
+                ])
+                ->get();
+            $result = $fullRents->map(function ($rent) {
+                $assignment = $rent->rentAssignment;
+                $object = $assignment ? $assignment->objectInRentAssigment : null;
+                $owner = $object ? $object->owner : null;
+                return [
+                    'id'               => $rent->id,
+                    'amount'           => $rent->amount,
+                    'date'             => $rent->date,
+                    'is_paid'          => (bool) $rent->is_paid,
+                    'object_name'      => $object->name ?? 'Brak nazwy',
+                    'owner_first_name' => $owner->first_name ?? null,
+                    'owner_last_name'  => $owner->last_name ?? null,
+                    'owner_email'      => $owner->email ?? null,
+                    'date_paid'        => $rent->date_paid ?? null,
+                    'is_accepted'      => $rent->is_accepted ?? null,
+                ];
+            });
+        }
+        else{
+            $result = null;
         }
         try {
-            $fullRent->rent_assigment();
+            $fullRent->rentAssignment();
             return response()->json([
-                'fullRent' => $fullRent
+                'fullRent' => $result
             ]);
         }catch ( \Exception $e){
             return response()->json([
@@ -269,7 +399,7 @@ class FullRentController extends Controller
     )]
     public function confirmPaid(FullRent $fullRent, Request $request): JsonResponse
     {
-        if (Gate::denies('update-fullRent', $fullRent)) {
+        if (Gate::denies('confirm-paid-fullRent', $fullRent)) {
             abort(403, 'Brak dostępu. Nie jesteś właścicielem.');
         }
         $validation = Validator::make($request->all(), [

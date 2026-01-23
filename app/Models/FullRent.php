@@ -38,7 +38,7 @@ class FullRent extends Model
         'updated_at'
     ];
 
-    public function rent_assigment(): BelongsTo
+    public function rentAssignment(): BelongsTo
     {
         return $this->belongsTo(RentAssigment::class, 'id_rent_assigment');
     }
