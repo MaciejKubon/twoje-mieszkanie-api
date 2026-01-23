@@ -40,15 +40,62 @@ class RentAssigmentController extends Controller
 
     public function index(): JsonResponse
     {
-        if (Gate::denies('show-all-rentAssigment')) {
-            abort(403, 'Brak dostępu. Nie jesteś właścicielem.');
-        }
+//        if (Gate::denies('show-all-rentAssigment')) {
+//            abort(403, 'Brak dostępu. Nie jesteś właścicielem.');
+//        }
         try{
-            $userId = auth()->id();
-            $objectsWithAssignments = $this->rentService->getRentsAssignedToObjects($userId);
+            $user = auth()->user();
+            $userId = $user->id;
+            if($user->role =='owner'){
+                $assignments = RentAssigment::whereHas('objectInRentAssigment', function($query) use ($userId) {
+                    $query->where('id_owner', $userId);
+                })
+                    ->with(['objectInRentAssigment', 'renter'])
+                    ->get();
+
+                $result = $assignments->map(function ($assignment) {
+                    return [
+                        'id' => $assignment->id,
+                        'id_renter' => $assignment->id_renter,
+                        'id_object' => $assignment->id_object,
+                        'confirmed' => $assignment->confirmed,
+                        'start_date' => $assignment->start_date,
+                        'end_date' => $assignment->end_date,
+                        'object_name' => $assignment->objectInRentAssigment->name ?? null,
+                        'renter_first_name' => $assignment->renter->first_name ?? null,
+                        'renter_last_name' => $assignment->renter->last_name ?? null
+                    ];
+                });
+            }elseif ($user->role == 'rentier')
+            {
+
+                $assignments = RentAssigment::where('id_renter', $userId)
+                    ->with(['objectInRentAssigment.owner'])
+                    ->get();
+
+                $result = $assignments->map(function ($assignment) {
+                    $object = $assignment->objectInRentAssigment;
+                    $owner = $object ? $object->owner : null;
+
+                    return [
+                        'id'               => $assignment->id,
+                        'id_object'        => $assignment->id_object,
+                        'confirmed'        => (bool) $assignment->confirmed,
+                        'start_date'       => $assignment->start_date,
+                        'end_date'         => $assignment->end_date,
+                        'object_name'      => $object->name,
+                        'owner_first_name' => $owner->first_name ?? null,
+                        'owner_last_name'  => $owner->last_name ?? null,
+                        'owner_email'      => $owner->email ?? null,
+                    ];
+                });
+            }
+            else{
+                $result = null;
+            }
             return response()->json([
-                'data' => $objectsWithAssignments
-            ],200);
+                'data' => $result
+            ], 200);
         }catch (\Exception $e){
             return response()->json([
                 'message' => 'Nieprzewidziany błąd',
@@ -244,7 +291,7 @@ class RentAssigmentController extends Controller
                 'end_date.required' => 'Pole data jest wymagane.',
                 'end_date.date' => 'Pole data jest wymagane.',
                 'end_date.after' => 'Pole data końca jest wcześniesz bądź równa dacie początkowej',
-                'confirmed' => 'Nieporawny typ pola confimed',
+                'confirmed.boolean' => 'Nieporawny typ pola confimed',
             ]);
             if ($validation->fails()) {
                 return response()->json([

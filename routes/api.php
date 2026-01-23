@@ -30,8 +30,10 @@ Route::middleware('auth:sanctum')->delete('/object/{objects}',[ObjectController:
 Route::middleware('auth:sanctum')->post('/rentAssigment',[RentAssigmentController::class,'store']);
 Route::middleware('auth:sanctum')->get('/rentAssigment',[RentAssigmentController::class,'index']);
 Route::middleware('auth:sanctum')->get('/rentAssigment/{rentAssigment}',[RentAssigmentController::class,'show']);
+Route::middleware('auth:sanctum')->put('/rentAssigment/{rentAssigment}',[RentAssigmentController::class,'update']);
 Route::middleware('auth:sanctum')->delete('/rentAssigment/{rentAssigment}',[RentAssigmentController::class,'destroy']);
 
+Route::middleware('auth:sanctum')->get('/fullRent',[FullRentController::class,'index']);
 Route::middleware('auth:sanctum')->get('/fullRent/{fullRent}',[FullRentController::class,'show']);
 Route::middleware('auth:sanctum')->post('/fullRent',[FullRentController::class,'store']);
 Route::middleware('auth:sanctum')->put('/fullRent/{fullRent}',[FullRentController::class,'update']);
